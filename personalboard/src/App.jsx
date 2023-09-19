@@ -1,67 +1,93 @@
+
 import "./App.css";
-import CLOUDS from "vanta/dist/vanta.clouds.min.js";
 import React, { useEffect, useRef } from "react";
-import "./App.css";
+import CLOUDS from "vanta/dist/vanta.clouds.min.js";
 import Draggable from "react-draggable";
 
 function App() {
   const audio = useRef(null);
 
+  const playAudio = () => {
+    if (audio.current) {
+      audio.current.play();
+    }
+  };
+
   useEffect(() => {
     audio.current = new Audio("/mainback.mp3");
     audio.current.loop = true;
+    let vantaEffect = null;
 
-    VANTA.CLOUDS({
-      el: "#vanta",
-      mouseControls: true,
-      touchControls: true,
-      gyroControls: true,
-      minHeight: 100.0,
-      minWidth: 100.0,
-      sunColor: 0xffa400,
-      speed: 2.75,
+    function refreshVanta() {
+      if (vantaEffect) vantaEffect.destroy();
+      vantaEffect = CLOUDS({
+        el: "#vanta",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: true,
+        minHeight: 100.0,
+        minWidth: 100.0,
+        sunColor: 0xffa400,
+        speed: 2.75,
+      });
+    }
+
+    refreshVanta();
+    window.addEventListener('resize', refreshVanta);
+
+    // Create a MutationObserver instance to listen for changes in the body's class list
+    const observer = new MutationObserver((mutationsList) => {
+      for (let mutation of mutationsList) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          if (document.body.classList.contains('react-draggable-transparent-selection')) {
+            audio.current.play();
+          }
+        }
+      }
     });
 
-    // Clean up function
+    // Start observing the body for configured mutations
+    observer.observe(document.body, { attributes: true });
+
+    // Clean up the observer when the component is unmounted
     return () => {
-      audio.pause();
-    };
+      observer.disconnect();
+      if (vantaEffect) vantaEffect.destroy();
+      window.removeEventListener('resize', refreshVanta);
+    }
   }, []);
 
-  const playAudio = () => {
-    const playPromise = audio.current.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then((_) => {
-          // Automatic playback started!
-        })
-        .catch((error) => {
-          console.log("Playback prevented", error);
-        });
-    }
-  };
+
 
   return (
     <>
       <div className="App">
         <div className="bg" id="vanta">
           <Draggable>
-            <div className="draggable justify-center pr-10 z-50">
-              <a href="/file_to_download.png" download onClick={playAudio}>
+            <div className="flex flex-col draggable mx-auto z-50 relative">
+              <a href="/doc1.pdf" download onClick={playAudio}>
                 <img
                   className="draggable-img"
                   src="/folder.png"
                   alt="Draggable item"
                 />
+                <div className="overlay-text">
+                  <br />
+                  <br />
+                  <br />
+                  <p class="text-gray-500 dark:text-gray-400"> resume
+                    <span class="inline-flex items-center font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                      <br />
+                      <svg class="w-4 h-4 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                      </svg>
+                    </span>
+                  </p>
+                </div>
               </a>
             </div>
           </Draggable>
-
-          <Draggable>
-            <div className="draggable pl-3 justify-center z-50">
-              <h3>my resume</h3>
-            </div>
-          </Draggable>
+          {/* ... */}
         </div>
       </div>
     </>

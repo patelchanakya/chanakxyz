@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
 }
+
 .bg {
   display: flex;
   justify-content: center;
@@ -10,11 +11,31 @@
   height: 100vh;
 }
 
+
+
 .draggable {
-  cursor: crosshair; /* Change to the cursor style you want */
+  cursor: crosshair;
+  /* Change to the cursor style you want */
 }
 
 .draggable-img {
-  width: 65px; /* Adjust as needed */
+  width: 80px;
+  /* Adjust as needed */
   height: auto;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.overlay-text {
+  position: absolute;
+  top: 50%;
+  left: 45%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 0.85rem;
+  color: #000000;
+  font-weight: 600;
+  /* Change color as needed */
 }
